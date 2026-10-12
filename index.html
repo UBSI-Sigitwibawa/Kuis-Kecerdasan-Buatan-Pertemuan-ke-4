@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuis Pertemuan 4 - Sistem Pakar | Pengantar Kecerdasan Buatan</title>
+<style>
+:root{
+  --navy:#0b2a5b; --navy2:#123a7a; --cyan:#00a8c6; --bg:#eef3fa; --card:#ffffff;
+  --text:#14213d; --muted:#5b6b86; --ok:#188a4a; --okbg:#e6f6ec; --bad:#c62828; --badbg:#fdeaea; --line:#d5dfee;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:22px 16px;text-align:center;border-bottom:4px solid var(--cyan)}
+header .univ{font-size:13px;letter-spacing:2px;text-transform:uppercase;opacity:.85}
+header h1{margin:6px 0 4px;font-size:24px}
+header p{margin:0;opacity:.9;font-size:14px}
+main{max-width:860px;margin:20px auto;padding:0 14px 40px}
+.card{background:var(--card);border-radius:14px;box-shadow:0 2px 12px rgba(11,42,91,.10);padding:22px;margin-bottom:18px;border:1px solid var(--line)}
+h2{color:var(--navy);margin-top:0}
+label{display:block;font-weight:600;margin:14px 0 6px;color:var(--navy)}
+input[type=text]{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:9px;font-size:15px;font-family:inherit}
+input[type=text]:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,168,198,.18)}
+.btn{background:var(--navy);color:#fff;border:0;padding:11px 22px;border-radius:9px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn:hover{background:var(--navy2)}
+.btn.alt{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
+.btn.alt:hover{background:#eef3fa}
+.btn.cyan{background:var(--cyan)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.info{background:#eaf6fb;border-left:4px solid var(--cyan);padding:12px 14px;border-radius:8px;font-size:14px;margin:14px 0}
+.err{color:var(--bad);font-size:14px;margin-top:10px;min-height:20px}
+.hidden{display:none!important}
+.topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;font-size:14px;color:var(--muted);margin-bottom:8px}
+.progress{height:9px;background:#dbe5f3;border-radius:9px;overflow:hidden;margin-bottom:16px}
+.progress>div{height:100%;background:linear-gradient(90deg,var(--cyan),var(--navy2));width:0;transition:width .25s}
+.qnum{color:var(--cyan);font-weight:700;font-size:14px;letter-spacing:1px}
+.qtext{font-size:18px;font-weight:600;margin:6px 0 16px}
+.opt{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;margin-bottom:10px;cursor:pointer;background:#fff;transition:.15s}
+.opt:hover{border-color:var(--cyan);background:#f4fbfd}
+.opt.sel{border-color:var(--navy);background:#e9f0fb}
+.opt .k{flex:0 0 28px;height:28px;border-radius:50%;background:#e1e9f6;color:var(--navy);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px}
+.opt.sel .k{background:var(--navy);color:#fff}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:6px}
+.grid button{padding:7px 0;border:1.5px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-weight:600;color:var(--navy);font-family:inherit}
+.grid button.done{background:var(--navy);color:#fff;border-color:var(--navy)}
+.grid button.cur{outline:3px solid var(--cyan)}
+@media(max-width:560px){.grid{grid-template-columns:repeat(6,1fr)}}
+.idbox{display:grid;grid-template-columns:130px 1fr;gap:4px 10px;font-size:15px;background:#f4f7fc;border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:16px}
+.idbox b{color:var(--navy)}
+.scorewrap{text-align:center;padding:10px 0 4px}
+.score{font-size:64px;font-weight:800;color:var(--navy);line-height:1}
+.score small{font-size:22px;color:var(--muted);font-weight:600}
+.badge{display:inline-block;margin-top:10px;padding:6px 18px;border-radius:99px;font-weight:700;color:#fff;background:var(--navy)}
+.stats{display:flex;justify-content:center;gap:26px;margin-top:14px;flex-wrap:wrap;font-size:15px}
+.stats span b{font-size:20px}
+.rv{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px;background:#fff;page-break-inside:avoid;break-inside:avoid}
+.rv.ok{border-left:6px solid var(--ok)}
+.rv.no{border-left:6px solid var(--bad)}
+.rv .q{font-weight:600;margin-bottom:8px}
+.rv .ro{padding:6px 10px;border-radius:7px;margin:4px 0;font-size:14.5px}
+.rv .ro.c{background:var(--okbg);color:#0d5c30;font-weight:600}
+.rv .ro.w{background:var(--badbg);color:#8e1b1b;font-weight:600}
+.rv .exp{margin-top:10px;background:#f4f7fc;border-radius:8px;padding:10px 12px;font-size:14.5px}
+.tag{font-size:12px;font-weight:700;padding:2px 9px;border-radius:99px;margin-left:6px;color:#fff}
+.tag.ok{background:var(--ok)}.tag.no{background:var(--bad)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:16px 0 6px}
+.printhead{display:none}
+footer{text-align:center;color:var(--muted);font-size:12.5px;padding:10px}
+@media print{
+  body{background:#fff;font-size:12px}
+  header,.noprint,#screenStart,#screenQuiz,footer{display:none!important}
+  main{margin:0;max-width:none;padding:0}
+  .card{box-shadow:none;border:0;padding:0}
+  .printhead{display:block;text-align:center;border-bottom:3px solid var(--navy);padding-bottom:8px;margin-bottom:12px}
+  .printhead h1{margin:0;font-size:18px;color:var(--navy)}
+  .printhead p{margin:2px 0 0;font-size:12px}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .score{font-size:46px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="univ">Universitas Bina Sarana Informatika</div>
+  <h1>Kuis Pertemuan ke-4: Sistem Pakar (Expert System)</h1>
+  <p>Pengantar Kecerdasan Buatan &bull; 30 Soal Pilihan Ganda</p>
+</header>
+
+<main>
+
+<!-- LAYAR 1: IDENTITAS -->
+<section id="screenStart" class="card">
+  <h2>Identitas Peserta</h2>
+  <div class="info">
+    Isi data diri dengan benar. Kuis terdiri dari <b>30 soal pilihan ganda</b>. Setiap soal bernilai sama (skor akhir 0&ndash;100).
+    Pembahasan lengkap ditampilkan setelah kuis diselesaikan. Setiap NIM hanya dapat mengerjakan <b>satu kali</b>.
+  </div>
+  <label for="nama">Nama Lengkap</label>
+  <input type="text" id="nama" placeholder="Contoh: Budi Santoso" autocomplete="name">
+  <label for="nim">NIM</label>
+  <input type="text" id="nim" placeholder="Contoh: 19240001" inputmode="numeric" autocomplete="off">
+  <label for="prodi">Program Studi</label>
+  <input type="text" id="prodi" list="prodiList" placeholder="Pilih atau ketik program studi">
+  <datalist id="prodiList">
+    <option value="Teknologi Komputer">
+    <option value="Teknik Informatika">
+    <option value="Sistem Informasi">
+    <option value="Teknik Industri">
+    <option value="Sistem Informasi Akuntansi">
+    <option value="Manajemen Informatika">
+  </datalist>
+  <div class="err" id="startErr"></div>
+  <button class="btn" id="btnStart">Mulai Kuis</button>
+</section>
+
+<!-- LAYAR 2: KUIS -->
+<section id="screenQuiz" class="hidden">
+  <div class="card">
+    <div class="topbar">
+      <span id="who"></span>
+      <span id="answeredInfo"></span>
+    </div>
+    <div class="progress"><div id="bar"></div></div>
+    <div class="qnum" id="qnum"></div>
+    <div class="qtext" id="qtext"></div>
+    <div id="opts"></div>
+    <div class="nav">
+      <button class="btn alt" id="btnPrev">&larr; Sebelumnya</button>
+      <button class="btn" id="btnNext">Berikutnya &rarr;</button>
+      <button class="btn cyan hidden" id="btnFinish">Selesai &amp; Lihat Nilai</button>
+    </div>
+  </div>
+  <div class="card">
+    <b style="color:var(--navy)">Navigasi Soal</b>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<!-- LAYAR 3: HASIL -->
+<section id="screenResult" class="card hidden">
+  <div class="printhead">
+    <h1>Hasil Kuis Pertemuan ke-4: Sistem Pakar (Expert System)</h1>
+    <p>Pengantar Kecerdasan Buatan &mdash; Universitas Bina Sarana Informatika</p>
+  </div>
+  <h2 class="noprint">Hasil Kuis</h2>
+  <div class="idbox">
+    <b>Nama</b><span id="rNama"></span>
+    <b>NIM</b><span id="rNim"></span>
+    <b>Program Studi</b><span id="rProdi"></span>
+    <b>Waktu</b><span id="rWaktu"></span>
+  </div>
+  <div class="scorewrap">
+    <div class="score"><span id="rScore">0</span><small> / 100</small></div>
+    <div class="badge" id="rBadge"></div>
+    <div class="stats">
+      <span>Benar: <b id="rBenar" style="color:var(--ok)"></b></span>
+      <span>Salah: <b id="rSalah" style="color:var(--bad)"></b></span>
+      <span>Tidak dijawab: <b id="rKosong" style="color:var(--muted)"></b></span>
+    </div>
+  </div>
+  <div class="actions noprint">
+    <button class="btn" id="btnPdf">&#128424; Simpan ke PDF / Cetak</button>
+  </div>
+  <div class="info noprint">Pada jendela cetak, pilih <b>&ldquo;Save as PDF&rdquo;</b> (Simpan sebagai PDF) sebagai printer tujuan.</div>
+  <h2 style="margin-top:24px">Pembahasan Soal</h2>
+  <div id="review"></div>
+</section>
+
+</main>
+<footer>www.bsi.ac.id &bull; Universitas Bina Sarana Informatika &bull; Pengantar Kecerdasan Buatan &bull; Pertemuan ke-4</footer>
+
+<script>
+/* ===== BANK SOAL (30) : q, o (opsi), a (indeks jawaban benar), e (pembahasan) ===== */
+var Q = [
+ {q:"Apa pengertian Sistem Pakar (Expert System)?",
+  o:["Sistem yang hanya menyimpan data numerik dalam database besar","Sistem AI yang menggabungkan basis pengetahuan dan mesin penelusuran data untuk memecahkan masalah spesifik yang normalnya memerlukan keahlian pakar manusia","Program yang menggantikan seluruh pekerjaan manusia tanpa batasan domain","Aplikasi yang hanya menghasilkan gambar dan teks secara acak"],
+  a:1,e:"Sistem Pakar adalah sistem Kecerdasan Buatan yang menggabungkan <i>knowledge base</i> dengan mesin penelusuran (inferensi) untuk memecahkan masalah spesifik yang secara normal membutuhkan keahlian seorang pakar manusia."},
+ {q:"Manakah pernyataan yang BENAR tentang perbandingan pakar manusia dan sistem pakar?",
+  o:["Pakar manusia beroperasi 24/7 tanpa istirahat","Sistem pakar bersifat lokal dan bergantung lokasi fisik","Sistem pakar konsisten 100% karena menggunakan logika absolut, sedangkan konsistensi pakar manusia dipengaruhi emosi dan kelelahan","Biaya konsultasi sistem pakar sangat mahal per sesi"],
+  a:2,e:"Sistem pakar konsisten karena logikanya absolut. Pakar manusia terbatas waktu, bersifat lokal, dan konsistensinya variabel. Biaya konsultasi sistem pakar justru terjangkau dengan skalabilitas tinggi setelah implementasi."},
+ {q:"Manfaat sistem pakar berupa 'mendokumentasikan keahlian pakar secara permanen tanpa batas waktu' disebut ...",
+  o:["Pelestarian Pengetahuan","Aksesibilitas Awam","Penghematan Waktu","Peningkatan Produktivitas"],
+  a:0,e:"Pelestarian pengetahuan berarti keahlian pakar terdokumentasi permanen di dalam sistem, sehingga tidak hilang saat pakar pensiun atau tidak tersedia."},
+ {q:"Tiga pilar utama sistem pakar secara berurutan adalah ...",
+  o:["Data, Algoritma, Output","Input, Proses, Output","Programmer, Database, Pengguna","Pakar (Sumber), Sistem (Mesin), Pemakai (Penerima)"],
+  a:3,e:"Pakar menanamkan fakta dan aturan logika, Sistem menyimpan dan mengeksekusi inferensi logis, dan Pemakai melakukan konsultasi serta menerima diagnosis atau solusi."},
+ {q:"Basis Pengetahuan (Knowledge Base) pada sistem pakar terdiri dari dua bagian utama, yaitu ...",
+  o:["Antarmuka dan database pengguna","Aturan (Rules) dan Fakta / Working Memory","Mesin inferensi dan fasilitas penjelasan","Akuisisi pengetahuan dan belajar mandiri"],
+  a:1,e:"Knowledge base memuat Pengetahuan/Aturan (rules berbentuk IF-THEN yang relatif statis) dan Fakta/Working Memory (data kasus yang sedang dianalisis)."},
+ {q:"Bagaimana sifat Aturan (Rules) dalam basis pengetahuan?",
+  o:["Dinamis dan berubah setiap konsultasi","Hanya berupa data numerik mentah","Berwujud logika IF-THEN dan relatif statis serta permanen","Dihasilkan sepenuhnya oleh pengguna awam"],
+  a:2,e:"Rules merepresentasikan keahlian dalam logika IF-THEN dan relatif statis/permanen, berbeda dengan fakta di working memory yang berubah selama konsultasi."},
+ {q:"Bagian dari knowledge base yang berisi data kasus spesifik yang sedang dianalisis dan bersifat dinamis disebut ...",
+  o:["Fakta / Working Memory","Aturan IF-THEN","Fasilitas penjelasan","Antarmuka pemakai"],
+  a:0,e:"Fakta/Working Memory menyimpan data kasus saat ini dan bertambah/berubah selama proses konsultasi berlangsung, termasuk fakta baru hasil inferensi."},
+ {q:"Prinsip 'Kualitas mengalahkan kuantitas' pada knowledge base berarti ...",
+  o:["Semakin banyak aturan selalu semakin baik","Aturan sebaiknya ditulis sebanyak mungkin tanpa validasi","Jumlah aturan tidak berpengaruh pada kinerja sistem","100 aturan yang tidak konsisten jauh lebih buruk daripada 10 aturan yang tervalidasi"],
+  a:3,e:"Aturan yang banyak tetapi tidak konsisten menghasilkan kesimpulan yang salah. Sedikit aturan yang tervalidasi lebih bernilai daripada banyak aturan yang bertentangan."},
+ {q:"Apa peran utama Mesin Inferensi (Inference Engine)?",
+  o:["Menyimpan seluruh aturan secara permanen","Menguji aturan satu per satu terhadap fakta yang ada dan menghasilkan kesimpulan jika kondisi IF terpenuhi","Menampilkan antarmuka grafis kepada pengguna","Mengumpulkan pengetahuan dari pakar secara langsung"],
+  a:1,e:"Mesin inferensi adalah 'otak' sistem yang melakukan pencocokan pola dan resolusi konflik (firing rules): jika kondisi IF terpenuhi, aturan dieksekusi untuk menghasilkan kesimpulan THEN."},
+ {q:"Ketika sebuah aturan dieksekusi (fired) oleh mesin inferensi, kesimpulan THEN yang dihasilkan akan ...",
+  o:["Dihapus dari memori","Disimpan permanen sebagai aturan baru di knowledge base","Ditambahkan kembali ke working memory sebagai fakta baru","Diabaikan sampai konsultasi berikutnya"],
+  a:2,e:"Kesimpulan THEN ditambahkan ke memori sebagai fakta baru, sehingga dapat memicu aturan-aturan berikutnya dalam rantai inferensi."},
+ {q:"Fasilitas Penjelasan (Explanation Facility) berfungsi untuk ...",
+  o:["Menjelaskan BAGAIMANA program dijalankan dan MENGAPA suatu kesimpulan atau rekomendasi diambil sehingga membuka 'black box' AI","Mempercepat proses komputasi mesin inferensi","Menambah aturan secara otomatis dari data pengguna","Mengubah tampilan antarmuka menjadi lebih menarik"],
+  a:0,e:"Explanation facility menunjukkan jejak penalaran (aturan yang digunakan dan alasannya), sehingga meningkatkan transparansi dan kepercayaan pengguna."},
+ {q:"Syarat utama Antarmuka Pemakai (User Interface) pada sistem pakar adalah ...",
+  o:["Hanya dapat dioperasikan oleh pakar","Menggunakan bahasa pemrograman tingkat rendah","Menampilkan seluruh aturan tanpa penjelasan","Interaktif, mudah dipahami, dan mampu mengarahkan alur penelusuran masalah secara intuitif bagi pengguna awam"],
+  a:3,e:"Antarmuka menjembatani sistem dan manusia; karena pengguna umumnya non-pakar, antarmuka harus interaktif, mudah dipahami, dan mengarahkan alur konsultasi."},
+ {q:"Komponen 'Akuisisi & Belajar Mandiri (Self-Learning)' memungkinkan sistem untuk ...",
+  o:["Menghapus fakta yang sudah lama","Mengelompokkan ulang fakta, mencerna iterasi turunan fakta baru, dan beradaptasi seiring bertambahnya data dari pakar","Menggantikan peran pakar sepenuhnya","Mengubah sistem pakar menjadi perangkat lunak konvensional"],
+  a:1,e:"Komponen ini mendukung evolusi pengetahuan: sistem dapat menata ulang fakta, menurunkan fakta baru, dan beradaptasi seiring tambahan pengetahuan dari pakar."},
+ {q:"Salah satu tantangan dan limitasi sistem pakar yang disebut 'Subjektivitas Pakar' berarti ...",
+  o:["Sistem pakar tidak dapat menggunakan logika","Sistem hanya bekerja pada siang hari","Kualitas solusi terikat pada kebenaran pakar asalnya sehingga bias pakar dapat diturunkan ke sistem","Sistem selalu lebih benar daripada pakar manusia"],
+  a:2,e:"Karena pengetahuan diambil dari pakar, kesalahan atau bias pakar dapat ikut tertanam di knowledge base. Tantangan lain: pengembangan sulit dan hilangnya sentuhan manusia (empati)."},
+ {q:"Strategi penalaran Forward Chaining bersifat ...",
+  o:["Data-Driven: mulai dari fakta/data awal lalu memicu aturan untuk menghasilkan kesimpulan baru","Goal-Driven: mulai dari hipotesis lalu mencari fakta pendukung","Berbasis kemiripan kasus lama","Berbasis penjelasan paling masuk akal"],
+  a:0,e:"Forward chaining berorientasi data: fakta yang ada memicu aturan untuk bergerak maju mencari kesimpulan baru, diulang sampai tidak ada aturan yang terpenuhi."},
+ {q:"Backward Chaining memulai proses penalaran dari ...",
+  o:["Seluruh fakta di working memory","Kasus terdahulu yang paling mirip","Sebuah tujuan/hipotesis spesifik, lalu bekerja mundur untuk membuktikan fakta pendukungnya","Aturan terakhir pada knowledge base"],
+  a:2,e:"Backward chaining bersifat goal-driven: tujuan mencari aturan pendukung, lalu sistem bekerja mundur memverifikasi fakta yang diperlukan."},
+ {q:"Kapan Forward Chaining paling optimal digunakan?",
+  o:["Saat tujuan investigasi sudah sangat spesifik","Saat data berlimpah namun hasil akhir/kesimpulannya belum diketahui sama sekali","Saat tidak ada fakta awal sama sekali","Saat hanya ada satu hipotesis yang ingin diuji"],
+  a:1,e:"Forward chaining cocok ketika banyak data tersedia tetapi kesimpulan belum diketahui, sehingga sistem 'menyapu' dari fakta untuk menemukan kesimpulan."},
+ {q:"Contoh pertanyaan 'Apakah sistem mengalami gangguan gateway?' paling sesuai ditangani dengan strategi ...",
+  o:["Forward Chaining","Case-Based Reasoning","Backward Chaining, karena tujuan investigasi sudah spesifik","Pencarian acak"],
+  a:2,e:"Tujuan yang spesifik (hipotesis gangguan gateway) membuat backward chaining paling efisien karena hanya memeriksa aturan yang relevan dengan tujuan tersebut."},
+ {q:"Abductive Reasoning adalah strategi penalaran yang ...",
+  o:["Mencari penjelasan yang paling masuk akal (hipotesis terbaik) terhadap gejala yang diamati","Menggunakan kemiripan dengan kasus terdahulu","Selalu bergerak dari fakta menuju kesimpulan pasti","Hanya digunakan pada mesin tanpa aturan"],
+  a:0,e:"Abductive reasoning: amati gejala, bangkitkan beberapa hipotesis, evaluasi dengan pengetahuan/aturan, lalu pilih penjelasan terbaik (best explanation)."},
+ {q:"Pada Case-Based Reasoning (CBR), langkah setelah 'Mencari kasus yang mirip dalam basis kasus' adalah ...",
+  o:["Membuat aturan IF-THEN baru","Menghapus kasus lama","Menanyakan fakta tambahan kepada pengguna","Mengambil solusi dari kasus yang paling mirip, lalu mengadaptasinya jika diperlukan"],
+  a:3,e:"Alur CBR: kasus baru, cari kasus mirip, ambil solusi kasus paling mirip, adaptasi solusi jika perlu, lalu kesimpulan/rekomendasi."},
+ {q:"Pada studi kasus diagnosis gangguan jaringan, fakta awalnya adalah server_down = TRUE dan ping_gagal = TRUE. Menurut aturan R1, fakta baru yang diturunkan adalah ...",
+  o:["indikasi_gangguan_gateway","indikasi_gangguan_konektivitas","periksa_konfigurasi_gateway","periksa_layanan_server"],
+  a:1,e:"R1: IF (server_down AND ping_gagal) THEN indikasi_gangguan_konektivitas. Kedua kondisi terpenuhi sehingga R1 dieksekusi dan menghasilkan fakta baru tersebut."},
+ {q:"Pada simulasi Forward Chaining, setelah fakta indikasi_gangguan_konektivitas dihasilkan oleh R1, aturan yang diperiksa/dipicu berikutnya adalah ...",
+  o:["Hanya R4","R1 diulang terus-menerus","R2 dan R3","Tidak ada aturan lagi"],
+  a:2,e:"Fakta baru indikasi_gangguan_konektivitas muncul pada kondisi R2 dan R3, sehingga keduanya diperiksa. Eksekusi selanjutnya bergantung pada fakta status gateway (tidak merespons atau merespons)."},
+ {q:"Pada simulasi Backward Chaining dengan tujuan 'indikasi_gangguan_gateway?', aturan yang diabaikan secara efisien adalah ...",
+  o:["R3 dan R4","R1 dan R2","Hanya R1","Semua aturan diperiksa"],
+  a:0,e:"Tujuan indikasi_gangguan_gateway dihasilkan oleh R2, yang membutuhkan R1. Sehingga R3 dan R4 tidak relevan dengan tujuan dan diabaikan."},
+ {q:"Dalam backward chaining untuk membuktikan tujuan indikasi_gangguan_gateway, aturan R2 mensyaratkan sub-tujuan yang harus dibuktikan, yaitu ...",
+  o:["server_down dan ping_gagal","periksa_layanan_server dan gateway_merespons","gateway_merespons saja","indikasi_gangguan_konektivitas dan gateway_tidak_merespons"],
+  a:3,e:"R2: IF (indikasi_gangguan_konektivitas AND gateway_tidak_merespons) THEN indikasi_gangguan_gateway. Sub-tujuan indikasi_gangguan_konektivitas dibuktikan lewat R1 (server_down dan ping_gagal ada di working memory)."},
+ {q:"Perbedaan metodologi eksekusi perangkat lunak konvensional dan sistem pakar adalah ...",
+  o:["Konvensional iteratif, sistem pakar sekuensial","Konvensional sekuensial/linear, sistem pakar iteratif (penarikan kesimpulan yang terus berkembang)","Keduanya sama-sama sekuensial","Keduanya sama-sama tanpa aturan"],
+  a:1,e:"Perangkat lunak konvensional berfokus pada solusi kalkulatif-prosedural yang berjalan berurutan, sedangkan sistem pakar berfokus pada penelusuran masalah logis-simbolik dengan inferensi iteratif."},
+ {q:"Pengembangan sistem pakar menuntut kolaborasi tim antara ...",
+  o:["Programmer dan desainer grafis","Dua orang programmer","Pakar Domain dan Knowledge Engineer","Pengguna awam dan administrator jaringan"],
+  a:2,e:"Berbeda dengan software konvensional yang dapat dikerjakan programmer mandiri, sistem pakar wajib dikembangkan bersama pakar domain dan knowledge engineer."},
+ {q:"Sistem pakar PEACE untuk perancangan sirkuit elektronik termasuk dalam bidang penerapan ...",
+  o:["Simulasi","Prediksi","Monitor","Desain"],
+  a:3,e:"Pada 10 bidang penerapan sistem pakar, Desain contohnya sirkuit elektronik (PEACE), sedangkan PLANT adalah contoh bidang Simulasi (pemodelan cuaca dan hama)."},
+ {q:"Pada pipeline Rekayasa Pengetahuan 6 tahap, tahap yang memetakan konsep ke dalam aturan logis (IF-THEN) adalah ...",
+  o:["Identifikasi","Konseptualisasi","Evaluasi","Formalisasi"],
+  a:3,e:"Urutan: Identifikasi, Konseptualisasi, Formalisasi (memetakan konsep ke aturan IF-THEN), Implementasi, Evaluasi, dan Pengembangan Sistem."},
+ {q:"Dibandingkan Machine Learning, sumber pengetahuan sistem pakar adalah ...",
+  o:["Data historis dan data pelatihan dalam jumlah besar","Fakta dan aturan eksplisit (IF-THEN) dari pakar domain","Pola yang dipelajari dari teks dan gambar skala besar","Label dan fitur yang dipelajari secara otomatis"],
+  a:1,e:"Sistem pakar (Rule-Based/Symbolic AI) memakai fakta dan aturan eksplisit dari pakar, sedangkan Machine Learning belajar pola dari data historis dan Generative AI dari data skala sangat besar."},
+ {q:"Keterbatasan yang paling sering dikaitkan dengan Generative AI (misalnya LLM) adalah ...",
+  o:["Tidak mampu memproses bahasa alami","Hanya dapat bekerja dengan aturan IF-THEN","Dapat menghasilkan jawaban yang tidak selalu akurat (halusinasi) sehingga perlu validasi","Selalu 100% konsisten dan transparan"],
+  a:2,e:"Generative AI bisa memberi informasi keliru (hallucination), membutuhkan sumber daya komputasi besar, dan hasilnya perlu divalidasi, terutama untuk informasi kritis."}
+];
+
+/* ===== UTIL & STATE ===== */
+var $ = function(id){return document.getElementById(id);};
+var LS_PREFIX = "kuis_ai_p4_";
+var user = null, answers = new Array(Q.length), cur = 0;
+for (var i=0;i<Q.length;i++) answers[i] = -1;
+var L = ["A","B","C","D"];
+
+function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+function esc(s){ var d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
+function show(id){ ["screenStart","screenQuiz","screenResult"].forEach(function(s){ $(s).classList.toggle("hidden", s!==id); }); window.scrollTo(0,0); }
+
+/* ===== MULAI ===== */
+$("btnStart").onclick = function(){
+  var nama = $("nama").value.trim(), nim = $("nim").value.trim(), prodi = $("prodi").value.trim();
+  if(!nama || !nim || !prodi){ $("startErr").textContent = "Nama, NIM, dan Program Studi wajib diisi."; return; }
+  if(!/^[0-9A-Za-z\-\.]{5,20}$/.test(nim)){ $("startErr").textContent = "Format NIM tidak valid."; return; }
+  $("startErr").textContent = "";
+  user = {nama:nama, nim:nim, prodi:prodi};
+  var saved = lsGet(LS_PREFIX + nim);
+  if(saved){
+    try {
+      var r = JSON.parse(saved);
+      alert("NIM " + nim + " sudah pernah mengerjakan kuis ini. Hasil sebelumnya akan ditampilkan.");
+      user = r.user; answers = r.answers; renderResult(r.waktu);
+      return;
+    } catch(e){}
+  }
+  $("who").textContent = nama + " \u2022 " + nim + " \u2022 " + prodi;
+  cur = 0; show("screenQuiz"); renderQ();
+};
+
+/* ===== TAMPIL SOAL ===== */
+function renderQ(){
+  var q = Q[cur];
+  $("qnum").textContent = "SOAL " + (cur+1) + " DARI " + Q.length;
+  $("qtext").textContent = q.q;
+  var h = "";
+  q.o.forEach(function(t,i){
+    h += '<div class="opt'+(answers[cur]===i?' sel':'')+'" data-i="'+i+'"><div class="k">'+L[i]+'</div><div>'+esc(t)+'</div></div>';
+  });
+  $("opts").innerHTML = h;
+  Array.prototype.forEach.call($("opts").children, function(el){
+    el.onclick = function(){ answers[cur] = parseInt(el.getAttribute("data-i")); renderQ(); };
+  });
+  var n = answers.filter(function(x){return x>=0;}).length;
+  $("answeredInfo").textContent = "Terjawab: " + n + " / " + Q.length;
+  $("bar").style.width = (n/Q.length*100) + "%";
+  $("btnPrev").disabled = cur===0;
+  var last = cur===Q.length-1;
+  $("btnNext").classList.toggle("hidden", last);
+  $("btnFinish").classList.toggle("hidden", !last);
+  var g = "";
+  for(var i=0;i<Q.length;i++){
+    g += '<button data-i="'+i+'" class="'+(answers[i]>=0?'done ':'')+(i===cur?'cur':'')+'">'+(i+1)+'</button>';
+  }
+  $("grid").innerHTML = g;
+  Array.prototype.forEach.call($("grid").children, function(b){
+    b.onclick = function(){ cur = parseInt(b.getAttribute("data-i")); renderQ(); window.scrollTo(0,0); };
+  });
+}
+$("btnPrev").onclick = function(){ if(cur>0){cur--; renderQ();} };
+$("btnNext").onclick = function(){ if(cur<Q.length-1){cur++; renderQ();} };
+
+/* ===== SELESAI ===== */
+$("btnFinish").onclick = function(){
+  var kosong = answers.filter(function(x){return x<0;}).length;
+  var msg = kosong>0 ? ("Masih ada "+kosong+" soal belum dijawab. Yakin ingin menyelesaikan kuis? Kuis tidak dapat diulang.") : "Selesaikan kuis sekarang? Kuis tidak dapat diulang.";
+  if(!confirm(msg)) return;
+  var waktu = new Date().toLocaleString("id-ID",{dateStyle:"full",timeStyle:"short"});
+  lsSet(LS_PREFIX + user.nim, JSON.stringify({user:user, answers:answers, waktu:waktu}));
+  renderResult(waktu);
+};
+
+function renderResult(waktu){
+  var benar=0, salah=0, kosong=0;
+  answers.forEach(function(a,i){ if(a<0) kosong++; else if(a===Q[i].a) benar++; else salah++; });
+  var skor = Math.round(benar/Q.length*100);
+  $("rNama").textContent = user.nama; $("rNim").textContent = user.nim; $("rProdi").textContent = user.prodi; $("rWaktu").textContent = waktu;
+  $("rScore").textContent = skor; $("rBenar").textContent = benar; $("rSalah").textContent = salah; $("rKosong").textContent = kosong;
+  var pred, col;
+  if(skor>=85){pred="Sangat Baik"; col="#188a4a";}
+  else if(skor>=70){pred="Baik"; col="#0b2a5b";}
+  else if(skor>=55){pred="Cukup"; col="#d98a00";}
+  else {pred="Perlu Belajar Lagi"; col="#c62828";}
+  $("rBadge").textContent = pred; $("rBadge").style.background = col;
+  var h = "";
+  Q.forEach(function(q,i){
+    var ua = answers[i], ok = ua===q.a;
+    h += '<div class="rv '+(ok?'ok':'no')+'"><div class="q">'+(i+1)+'. '+esc(q.q)+
+         ' <span class="tag '+(ok?'ok':'no')+'">'+(ua<0?'TIDAK DIJAWAB':(ok?'BENAR':'SALAH'))+'</span></div>';
+    q.o.forEach(function(t,j){
+      var cls = j===q.a ? "c" : (j===ua ? "w" : "");
+      var mark = j===q.a ? " \u2713 (Jawaban benar)" : (j===ua ? " \u2717 (Jawaban Anda)" : "");
+      h += '<div class="ro '+cls+'">'+L[j]+'. '+esc(t)+mark+'</div>';
+    });
+    h += '<div class="exp"><b>Pembahasan:</b> '+q.e+'</div></div>';
+  });
+  $("review").innerHTML = h;
+  show("screenResult");
+}
+
+/* ===== SIMPAN PDF ===== */
+$("btnPdf").onclick = function(){
+  var old = document.title;
+  document.title = "Hasil_Kuis_P4_" + user.nim + "_" + user.nama.replace(/\s+/g,"_");
+  window.print();
+  setTimeout(function(){ document.title = old; }, 1500);
+};
+</script>
+</body>
+</html>
